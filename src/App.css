@@ -4,8 +4,15 @@
   padding: 2rem;
   display: flex;
   justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .active {
-  color: green;
+  color: white;
 }
+
+.active:hover {
+  color: white !important;
+}
+

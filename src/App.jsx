@@ -1,9 +1,13 @@
 import './App.css';
 import AppRoutes from "./Routes/Routes";
+import Header from './Components/NavBar';
 
 function App() {
     return (
-        <AppRoutes />
+        <>
+            <Header />
+            <AppRoutes />
+        </>
     )
 }
 

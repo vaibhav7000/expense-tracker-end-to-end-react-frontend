@@ -1,16 +1,55 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
-function SignIn() {
+function SignIn({ setIsValidJwt }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
+    const navigate = useNavigate();
 
     function updateUsername(event) {
-        setUsername(event.targert.value);
+        setUsername(event.target.value);
     }
 
     function updatePassword(event) {
-        setPassword(event.targert.value);
+        setPassword(event.target.value);
+    }
+
+    async function login() {
+        if(!username.length) {
+            alert("Enter valid username");
+            return
+        }
+
+        if(!password.length) {
+            alert("Enter valid password");
+            return
+        }
+
+        // sending request to the backend to get the token
+        const response = await fetch("http://localhost:3000/user/signin", {
+            method: "POST",
+            body: JSON.stringify({
+                username, password
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+
+        })
+
+        const output = await response.json();
+
+        if(response.status === 200 ) {
+            localStorage.setItem("token", output.token);
+            navigate("/", {
+                state: true,
+            });
+            setIsValidJwt(true);
+        } else {
+            alert(`${output.msg}`);
+            return
+        }
     }
 
 
@@ -27,7 +66,7 @@ function SignIn() {
             </div>
 
             <button onClick={function() {
-
+                login();
             }}>Sign In</button>
         </>
     )

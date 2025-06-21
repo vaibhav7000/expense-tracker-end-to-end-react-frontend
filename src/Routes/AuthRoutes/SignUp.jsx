@@ -1,16 +1,50 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 export default function SignUp() {
-    const [userame, setUsername] = useState("");
+    console.log("hello")
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    let navigate = useNavigate();
 
 
     function updateUsername(event) {
-        setUsername(event.targert.value);
+        setUsername(event.target.value);
     }
 
     function updatePassword(event) {
-        setPassword(event.targert.value);
+        setPassword(event.target.value);
+    }
+
+    async function addUserToDatabse() {
+        if(!username.length) {
+            alert("Enter valid username");
+            return
+        }
+
+        if(!password.length) {
+            alert("Enter valid password");
+            return
+        }
+
+        const resposne = await fetch("http://localhost:3000/user/signup", {
+            method: "POST",
+            body: JSON.stringify({
+                username, password
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+
+        const output = await resposne.json();
+
+        if(resposne.status === 200) {
+            navigate("/signin");
+            return
+        } 
+
+        alert(output.msg)
     }
 
     return (
@@ -18,7 +52,7 @@ export default function SignUp() {
             <div className="usename-container" style={{
 
             }}>
-                <input value={userame} placeholder="Enter your username" onInput={updateUsername} />
+                <input value={username} placeholder="Enter your username" onInput={updateUsername} />
             </div>
 
             <div className="password-container" style={{}}>
@@ -26,8 +60,8 @@ export default function SignUp() {
             </div>
 
             <button onClick={function() {
-
-            }}>Sign In</button>
+                addUserToDatabse();
+            }}>Sign Up</button>
         </>
     )
 
