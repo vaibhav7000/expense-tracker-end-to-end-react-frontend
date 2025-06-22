@@ -5,7 +5,6 @@ import Header from './Components/NavBar';
 function App() {
     return (
         <>
-            <Header />
             <AppRoutes />
         </>
     )

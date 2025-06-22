@@ -1,6 +1,6 @@
 import { NavLink } from "react-router";
 import reactLogo from '../assets/react.svg'
-export default function Header() {
+export default function Header({ isValidJwt, logOut }) {
 
     return (
         <nav style={{
@@ -13,13 +13,19 @@ export default function Header() {
             <div className="nav-items" style={{
             display: "flex", flexDirection: "row", gap: 20
         }}>
-                <NavLink to={"signin"} className={({ isActive }) => isActive ? "active" : ""}>
+                {!isValidJwt && <NavLink to={"signin"} className={({ isActive }) => isActive ? "active" : ""}>
                     Signin
-                </NavLink>
+                </NavLink>}
 
-                <NavLink to={"signup"} className={({ isActive }) => isActive ? "active" : ""}>
+                {!isValidJwt && <NavLink to={"signup"} className={({ isActive }) => isActive ? "active" : ""}>
                     Signup
-                </NavLink>
+                </NavLink>}
+
+                {isValidJwt && <NavLink onClick={function() {
+                    logOut();
+                }} to={"signin"}>
+                    Logout
+                </NavLink>}
             </div>
 
         </nav>

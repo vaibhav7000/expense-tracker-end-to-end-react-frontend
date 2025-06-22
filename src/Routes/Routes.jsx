@@ -6,6 +6,7 @@ import ExpenseTracker from "./AppRoutes/ExpenseTracker";
 import { useState, useEffect } from "react";
 import { useCallback } from "react";
 import { useRef } from "react";
+import Header from "../Components/NavBar";
 
 
 export default function AppRoutes() {
@@ -18,7 +19,6 @@ export default function AppRoutes() {
         const token = localStorage.getItem("token");
         if(!token) {
             navigate("/signup");
-            console.log(isValidJwt);
             return
         }
 
@@ -37,7 +37,7 @@ export default function AppRoutes() {
             alert("Invalid token set");
             return
         }
-
+        
         setIsValidJwt(true);
         
     }, []);
@@ -47,14 +47,23 @@ export default function AppRoutes() {
         init();
     }, []);
 
+    const logOut = useCallback(function() {
+        localStorage.removeItem("token");
+        setIsValidJwt(false);
+        navigate("signin");
+    },[]);
+
     return (
-        <Routes>
-            <Route path="" element={isValidJwt ? <ExpenseTracker/> : <Loading/> } />
-            <Route element={<AuthRoute/>}>
-                <Route path="signin"  element={ <SignIn setIsValidJwt={setIsValidJwt}/> }/>
-                <Route path="signup" element={ <SignUp/> }/>
-            </Route>
-        </Routes>
+        <div>
+            <Header isValidJwt={isValidJwt} logOut={logOut}/>
+            <Routes>
+                <Route path="" element={isValidJwt ? <ExpenseTracker logout={logOut}/> : <Loading/> } />
+                <Route element={<AuthRoute/>}>
+                    <Route path="signin"  element={ <SignIn setIsValidJwt={setIsValidJwt}/> }/>
+                    <Route path="signup" element={ <SignUp/> }/>
+                </Route>
+            </Routes>
+        </div>
     )
 }
 
