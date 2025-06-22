@@ -91,6 +91,8 @@ export default function ExpenseTracker({ logout }) {
                 ...newTransaction
             }])
 
+            console.log(allExpenses);
+
         } catch(error) {
             alert("Something up with the server try again")
         }
@@ -101,6 +103,98 @@ export default function ExpenseTracker({ logout }) {
         getExpenseDataFromBackend();
     }, []);
 
+    const updateTransaction = useCallback(async function(id, updatedData) {
+        // we need to make the token globally here comes the need of global states
+        try {
+            const response = await fetch(`http://localhost:3000/transactions/updateTransaction?id=${id}`, {
+                method: "PUT",
+                body: JSON.stringify({
+                    ...updatedData
+                }),
+                headers: {
+                    "token": token.current,
+                    "Content-Type": "application/json"
+                }
+            })
+
+            const output = await response.json();
+
+            if(response.status === 403) {
+                // invalid jwt token or becomes expired
+                logout();
+                alert(output.msg);
+                return
+            } 
+
+            if(response.status === 400) {
+                alert(output.msg);
+                return
+            }
+
+            if(response.status === 500) {
+                alert(output.msg);
+                return
+            }
+
+            if(response.status === 200) {
+                const updatedExpenseIndex = allExpenses.findIndex(expense => expense._id === id);
+                // using the splice method
+                // removing the element and updating that the removed element
+                console.log(output.updatedData)
+                allExpenses.splice(updatedExpenseIndex, 1, output.updatedData);
+                setAllExpenses([...allExpenses]);
+            }
+
+
+        } catch (error) {
+            alert("Something up with the server try again")
+        }
+    }, [allExpenses]);
+
+    const removeTransaction = useCallback(async function(id) {
+        try {
+            const response = await fetch(`http://localhost:3000/transactions/deleteTransaction?id=${id}`, {
+                method: "DELETE",
+                headers: {
+                    "token": token.current
+                }
+            })
+
+            const output = await response.json();
+
+            if(response.status === 403) {
+                // invalid jwt token or becomes expired
+                logout();
+                alert(output.msg);
+                return
+            }
+
+            if(response.status === 400) {
+                alert(output.msg);
+                return
+            }
+
+            if(response.status === 500) {
+                alert(output.msg);
+                return
+            }
+
+            if(response.status === 404) {
+                alert(output.msg);
+                return
+            }
+
+            if(response.status === 200) {
+                const deleteIndex = allExpenses.findIndex(expense => expense._id === id);
+                allExpenses.splice(deleteIndex, 1);
+                setAllExpenses([...allExpenses])
+                return
+            }
+
+        } catch (error) {
+            alert("Something up with the server");
+        }
+    }, [allExpenses]);
     return (
         <div className="wrapper" style={{
             display: "flex",
@@ -120,8 +214,8 @@ export default function ExpenseTracker({ logout }) {
             }}>
                 {allExpenses.map(expense => {
                     return (
-                        <ExpenseWrapperMemo>
-                            <Expense expense={expense} />
+                        <ExpenseWrapperMemo key={expense._id}>
+                            <Expense expense={expense} id={expense._id} removeTransaction={removeTransaction} updateTransaction={updateTransaction} />
                         </ExpenseWrapperMemo>
                     )
                 })}
